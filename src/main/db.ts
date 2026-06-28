@@ -29,7 +29,7 @@ function registerHandlers(): void {
     try {
       const stmt = db.prepare('INSERT INTO users (name, email) VALUES (?, ?)')
       const result = stmt.run(userData.name, userData.email)
-      return { success: true, id: result.lastInsertRowId }
+      return { success: true, id: result.lastInsertRowid }
     } catch (error: any) {
       return { success: false, error: error.message }
     }

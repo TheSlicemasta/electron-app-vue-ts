@@ -42,10 +42,10 @@ function createWindow(): void {
 }
 
 // Слушатель для работы с БД
-ipcMain.handle('db:save', async (event, userData) => {
+ipcMain.handle('db:save', async (_event, userData) => {
   const stmt = db.prepare('INSERT INTO users (name) VALUES (?)')
   const info = stmt.run(userData.name)
-  return { success: true, id: info.lastInsertRowId }
+  return { success: true, id: info.lastInsertRowid }
 })
 
 // This method will be called when Electron has finished
