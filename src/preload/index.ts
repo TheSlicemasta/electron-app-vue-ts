@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-const databaseApi = {
+const databaseAPI = {
   // SQLite CRUD
   createUser: (userData: { name: string; email: string }) =>
     ipcRenderer.invoke('db:create-user', userData),
@@ -20,7 +20,7 @@ const databaseApi = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', databaseApi)
+    contextBridge.exposeInMainWorld('api', databaseAPI)
   } catch (error) {
     console.error(error)
   }
@@ -31,4 +31,4 @@ if (process.contextIsolated) {
   window.api = api
 }
 
-export type DatabaseApi = typeof databaseApi
+export type DatabaseAPI = typeof databaseAPI
