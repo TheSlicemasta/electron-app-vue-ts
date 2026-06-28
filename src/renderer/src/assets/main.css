@@ -5,11 +5,13 @@
 @theme {
   /* --color-primary: red; */
   --color-primary: var(--color-red-500);
+  --color-background: var(--color-slate-700);
 }
 
 [data-theme='dark'] {
   /* --color-primary: green; */
   --color-primary: var(--color-green-500);
+  --color-background: var(--color-slate-900);
 }
 
 @layer base {
@@ -36,18 +38,6 @@
   tab-size: 4;
 } */
 
-@import './base.css';
-
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background-image: url('./wavy-lines.svg');
-  background-size: cover;
-  user-select: none;
-}
-
 code {
   font-weight: 600;
   padding: 3px 5px;
@@ -64,14 +54,6 @@ code {
   font-size: 85%;
 }
 
-#app {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin-bottom: 80px;
-}
-
 .logo {
   margin-bottom: 20px;
   -webkit-user-drag: none;
@@ -83,47 +65,6 @@ code {
 
 .logo:hover {
   filter: drop-shadow(0 0 1.2em #6988e6aa);
-}
-
-.creator {
-  font-size: 14px;
-  line-height: 16px;
-  color: var(--ev-c-text-2);
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.text {
-  font-size: 28px;
-  color: var(--ev-c-text-1);
-  font-weight: 700;
-  line-height: 32px;
-  text-align: center;
-  margin: 0 10px;
-  padding: 16px 0;
-}
-
-.tip {
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--ev-c-text-2);
-  font-weight: 600;
-}
-
-.vue {
-  background: -webkit-linear-gradient(315deg, #42d392 25%, #647eff);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-}
-
-.ts {
-  background: -webkit-linear-gradient(315deg, #3178c6 45%, #f0dc4e);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
 }
 
 .action a {
@@ -177,9 +118,6 @@ code {
 }
 
 @media (max-width: 720px) {
-  .text {
-    font-size: 20px;
-  }
 }
 
 @media (max-width: 620px) {
@@ -189,7 +127,6 @@ code {
 }
 
 @media (max-width: 350px) {
-  .tip,
   .actions {
     display: none;
   }

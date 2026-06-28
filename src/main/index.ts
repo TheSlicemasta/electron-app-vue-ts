@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import database from 'better-sqlite3'
 import axios from 'axios'
+import { initDatabase } from './db'
 
 // Инициализируем БД в папке userData пользователя
 const db = new database(`${app.getPath('userData')}/database.db`)
@@ -74,6 +75,8 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  initDatabase()
 
   createWindow()
 
