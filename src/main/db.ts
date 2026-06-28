@@ -75,7 +75,7 @@ function registerHandlers(): void {
   ipcMain.handle('api:fetch-remote-users', async () => {
     try {
       // Для теста используем бесплатный JSONPlaceholder API
-      const response = await net.fetch('https://typicode.com')
+      const response = await net.fetch('https://jsonplaceholder.typicode.com/users')
       if (!response.ok) throw new Error('Ошибка сети сервера')
 
       const remoteUsers = (await response.json()) as any[]

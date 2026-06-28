@@ -3,7 +3,6 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import database from 'better-sqlite3'
-import axios from 'axios'
 import { initDatabase } from './db'
 
 // Инициализируем БД в папке userData пользователя
@@ -47,16 +46,6 @@ ipcMain.handle('db:save', async (event, userData) => {
   const stmt = db.prepare('INSERT INTO users (name) VALUES (?)')
   const info = stmt.run(userData.name)
   return { success: true, id: info.lastInsertRowId }
-})
-
-// Слушатель для безопасных HTTPS запросов
-ipcMain.handle('api:request', async (event, url) => {
-  try {
-    const response = await axios.get(url)
-    return response.data
-  } catch (error) {
-    return { error: error.message }
-  }
 })
 
 // This method will be called when Electron has finished
