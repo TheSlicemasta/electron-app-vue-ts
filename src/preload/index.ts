@@ -1,20 +1,17 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
-const api = {
-  // Метод для вызова БД
-  saveToDb: (userData) => ipcRenderer.invoke('db:save', userData),
-
-  // Метод для безопасного HTTPS запроса через Node.js
-  fetchExternalApi: (url) => ipcRenderer.invoke('api:request', url),
-
-  // Db create user
+const databaseApi = {
+  // SQLite CRUD
   createUser: (userData: { name: string; email: string }) =>
     ipcRenderer.invoke('db:create-user', userData),
+  getUsers: () => ipcRenderer.invoke('db:get-users'),
+  updateUser: (id: number, userData: { name: string; email: string }) =>
+    ipcRenderer.invoke('db:update-user', id, userData),
+  deleteUser: (id: number) => ipcRenderer.invoke('db:delete-user', id),
 
-  // Db get user
-  getUsers: () => ipcRenderer.invoke('db:get-users')
+  // HTTPS API
+  fetchRemoteUsers: () => ipcRenderer.invoke('api:fetch-remote-users')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -23,7 +20,7 @@ const api = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('api', databaseApi)
   } catch (error) {
     console.error(error)
   }
@@ -34,4 +31,4 @@ if (process.contextIsolated) {
   window.api = api
 }
 
-export type WinApi = typeof api
+export type DatabaseApi = typeof databaseApi

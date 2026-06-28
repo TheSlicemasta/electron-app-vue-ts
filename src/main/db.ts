@@ -1,20 +1,14 @@
 import database from 'better-sqlite3'
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, net } from 'electron' // Используем net для безопасных HTTPS запросов
 import path from 'path'
 
 let db: database.Database
 
 export function initDatabase(): void {
-  // Путь к файлу БД в папке AppData (Windows) или Application Support (macOS)
   const dbPath = path.join(app.getPath('userData'), 'app_database.db')
-
-  // Открываем или создаем файл БД
   db = new database(dbPath)
-
-  // Включаем поддержку внешних ключей (Foreign Keys) для SQLite
   db.pragma('foreign_keys = ON')
 
-  // Создаем таблицы, если их еще нет
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,14 +18,13 @@ export function initDatabase(): void {
     );
   `)
 
-  console.log(`База данных успешно инициализирована по пути: ${dbPath}`)
-
-  // Регистрируем обработчики IPC для запросов из Vue
-  registerDbHandlers()
+  registerHandlers()
 }
 
-function registerDbHandlers(): void {
-  // Обработчик сохранения пользователя
+function registerHandlers(): void {
+  // === БЛОК СUAD (SQLite) ===
+
+  // Create (Создание)
   ipcMain.handle('db:create-user', async (_event, userData: { name: string; email: string }) => {
     try {
       const stmt = db.prepare('INSERT INTO users (name, email) VALUES (?, ?)')
@@ -42,12 +35,54 @@ function registerDbHandlers(): void {
     }
   })
 
-  // Обработчик получения всех пользователей
+  // Read (Чтение)
   ipcMain.handle('db:get-users', async () => {
     try {
-      const stmt = db.prepare('SELECT * FROM users ORDER BY created_at DESC')
-      const users = stmt.all()
-      return { success: true, data: users }
+      const stmt = db.prepare('SELECT * FROM users ORDER BY id DESC')
+      return { success: true, data: stmt.all() }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Update (Обновление)
+  ipcMain.handle(
+    'db:update-user',
+    async (_event, id: number, userData: { name: string; email: string }) => {
+      try {
+        const stmt = db.prepare('UPDATE users SET name = ?, email = ? WHERE id = ?')
+        const result = stmt.run(userData.name, userData.email, id)
+        return { success: true, changes: result.changes }
+      } catch (error: any) {
+        return { success: false, error: error.message }
+      }
+    }
+  )
+
+  // Delete (Удаление)
+  ipcMain.handle('db:delete-user', async (_event, id: number) => {
+    try {
+      const stmt = db.prepare('DELETE FROM users WHERE id = ?')
+      const result = stmt.run(id)
+      return { success: true, changes: result.changes }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // === БЛОК HTTPS API (Синхронизация) ===
+  // Запрос выполняется на стороне Node.js (нет проблем с CORS, безопасно)
+  ipcMain.handle('api:fetch-remote-users', async () => {
+    try {
+      // Для теста используем бесплатный JSONPlaceholder API
+      const response = await net.fetch('https://typicode.com')
+      if (!response.ok) throw new Error('Ошибка сети сервера')
+
+      const remoteUsers = (await response.json()) as any[]
+
+      // Преобразуем формат сервера под нашу БД и возвращаем
+      const formatted = remoteUsers.map((u) => ({ name: u.name, email: u.email.toLowerCase() }))
+      return { success: true, data: formatted }
     } catch (error: any) {
       return { success: false, error: error.message }
     }

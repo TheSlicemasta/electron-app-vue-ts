@@ -1,9 +1,9 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { WinApi } from './index'
+import { databaseApi } from './index'
 
 declare global {
   interface Window {
     electron: ElectronAPI
-    api: WinApi
+    api: databaseApi
   }
 }
