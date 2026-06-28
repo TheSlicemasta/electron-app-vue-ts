@@ -1,8 +1,13 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  // Метод для вызова БД
+  saveToDb: (userData) => ipcRenderer.invoke('db:save', userData),
+  // Метод для безопасного HTTPS запроса через Node.js
+  fetchExternalApi: (url) => ipcRenderer.invoke('api:request', url)
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

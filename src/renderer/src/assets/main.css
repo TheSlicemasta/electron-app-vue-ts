@@ -126,19 +126,6 @@ code {
   font-weight: 700;
 }
 
-.actions {
-  display: flex;
-  padding-top: 32px;
-  margin: -6px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-
-.action {
-  flex-shrink: 0;
-  padding: 6px;
-}
-
 .action a {
   cursor: pointer;
   text-decoration: none;
