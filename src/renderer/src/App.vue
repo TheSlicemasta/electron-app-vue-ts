@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Versions from './components/Versions.vue'
+import ThemeSwitcher from './components/ThemeSwitcher.vue'
 
 const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 </script>
@@ -7,6 +8,12 @@ const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 <template>
   <img alt="logo" class="logo" src="./assets/electron.svg" />
   <div class="creator">Powered by electron-vite</div>
+
+  <div>
+    <ThemeSwitcher />
+  </div>
+
+  <h1 class="text-3xl font-bold underline text-primary">Hello world!</h1>
   <div class="text">
     Build an Electron app with
     <span class="vue">Vue</span>

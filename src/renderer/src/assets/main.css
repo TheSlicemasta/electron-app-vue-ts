@@ -1,3 +1,41 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  /* --color-primary: red; */
+  --color-primary: var(--color-red-500);
+}
+
+[data-theme='dark'] {
+  /* --color-primary: green; */
+  --color-primary: var(--color-green-500);
+}
+
+@layer base {
+  /* h1 {
+    @apply text-green-500;
+  } */
+}
+
+@layer components {
+  /* .card {
+    background-color: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: --spacing(6);
+    box-shadow: var(--shadow-xl);
+    } */
+}
+
+@layer components {
+}
+
+/* text-teal-600 dark:text-red-600 */
+
+/* @utility tab-4 {
+  tab-size: 4;
+} */
+
 @import './base.css';
 
 body {

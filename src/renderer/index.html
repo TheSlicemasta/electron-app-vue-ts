@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html data-theme="">
   <head>
     <meta charset="UTF-8" />
     <title>Electron</title>
@@ -8,9 +8,25 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
     />
+
+    <!-- Blocking Script to calculate preferred initial color -->
+    <script>
+      ;(function () {
+        const savedTheme = localStorage.getItem('user-theme') || 'system'
+        const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+        if (savedTheme === 'dark' || (savedTheme === 'system' && isDarkSystem)) {
+          document.documentElement.setAttribute('data-theme', 'dark')
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light')
+        }
+      })()
+    </script>
   </head>
 
-  <body>
+  <body
+    class="bg-white text-black dark:bg-slate-900 dark:text-white transition-colors duration-200"
+  >
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
