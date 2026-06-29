@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-const databaseAPI = {
+const appAPI = {
   // SQLite CRUD
   createUser: (userData: { name: string; email: string }) =>
     ipcRenderer.invoke('db:create-user', userData),
@@ -13,10 +13,10 @@ const databaseAPI = {
   // HTTPS API
   fetchRemoteUsers: () => ipcRenderer.invoke('api:fetch-remote-users'),
 
-  // Dialog Confirm
+  // App: Dialog Confirm
   showConfirm: (message: string) => ipcRenderer.invoke('app:show-confirm', message),
 
-  // Alert
+  // App: Alert
   showAlert: (params: { type: string; title: string; message: string }) =>
     ipcRenderer.invoke('app:show-alert', params)
 }
@@ -27,7 +27,7 @@ const databaseAPI = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', databaseAPI)
+    contextBridge.exposeInMainWorld('api', appAPI)
   } catch (error) {
     console.error(error)
   }
@@ -38,4 +38,4 @@ if (process.contextIsolated) {
   window.api = api
 }
 
-export type DatabaseAPI = typeof databaseAPI
+export type AppAPI = typeof appAPI

@@ -115,7 +115,7 @@ onMounted(() => {
       </header>
 
       <div class="action flex gap-3 py-3">
-        <a target="_blank" rel="noreferrer" @click.prevent="ipcHandle">Send IPC</a>
+        <a target="_blank" rel="noreferrer" @click.prevent="ipcHandle">Send IPC (ping -> pong)</a>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-5 gap-6 items-start">
