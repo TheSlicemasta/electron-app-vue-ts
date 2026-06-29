@@ -2,12 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import database from 'better-sqlite3'
 import { initDatabase } from './db'
-
-// Инициализируем БД в папке userData пользователя
-const db = new database(`${app.getPath('userData')}/database.db`)
-db.exec('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT)')
 
 function createWindow(): void {
   // Create the browser window.
@@ -40,13 +35,6 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
-
-// Слушатель для работы с БД
-ipcMain.handle('db:save', async (_event, userData) => {
-  const stmt = db.prepare('INSERT INTO users (name) VALUES (?)')
-  const info = stmt.run(userData.name)
-  return { success: true, id: info.lastInsertRowid }
-})
 
 // Confirm
 ipcMain.handle('app:show-confirm', async (_event, message: string) => {
