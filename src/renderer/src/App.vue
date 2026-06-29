@@ -92,9 +92,9 @@ onMounted(() => {
 
 <template>
   <div
-    class="min-h-screen bg-background p-6 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950"
+    class="min-h-screen bg-background p-6 text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col justify-center"
   >
-    <div class="max-w-3xl mx-auto space-y-6">
+    <div class="w-full max-w-[min(90%,1200px)] mx-auto space-y-6">
       <!-- Шапка -->
       <header
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl gap-4"

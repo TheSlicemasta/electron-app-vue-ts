@@ -13,10 +13,8 @@ const appAPI = {
   // HTTPS API
   fetchRemoteUsers: () => ipcRenderer.invoke('api:fetch-remote-users'),
 
-  // App: Dialog Confirm
+  // App helpers: Dialog Confirm, Alert
   showConfirm: (message: string) => ipcRenderer.invoke('app:show-confirm', message),
-
-  // App: Alert
   showAlert: (params: { type: string; title: string; message: string }) =>
     ipcRenderer.invoke('app:show-alert', params)
 }

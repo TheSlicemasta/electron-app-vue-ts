@@ -1,5 +1,5 @@
 import database from 'better-sqlite3'
-import { app, ipcMain, net } from 'electron' // Используем net для безопасных HTTPS запросов
+import { app, ipcMain } from 'electron' // Используем net для безопасных HTTPS запросов
 import path from 'path'
 
 let db: database.Database

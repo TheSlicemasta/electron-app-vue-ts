@@ -1,7 +1,6 @@
-import { ipcMain, net } from 'electron' // Используем net для безопасных HTTPS запросов
+import { ipcMain, net } from 'electron'
 
 export function initApi(): void {
-  // === БЛОК HTTPS API (Синхронизация) ===
   // Запрос выполняется на стороне Node.js (нет проблем с CORS, безопасно)
   ipcMain.handle('api:fetch-remote-users', async () => {
     try {
