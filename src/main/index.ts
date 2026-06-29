@@ -1,8 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { initDatabase } from './db'
+import { initApi } from './api'
+import { initApp } from './app'
 
 function createWindow(): void {
   // Create the browser window.
@@ -36,32 +38,6 @@ function createWindow(): void {
   }
 }
 
-// Confirm
-ipcMain.handle('app:show-confirm', async (_event, message: string) => {
-  const result = await dialog.showMessageBox({
-    type: 'question',
-    buttons: ['Отмена', 'Да'], // Кнопка 0 и Кнопка 1
-    defaultId: 0,
-    title: 'Подтверждение',
-    message: message,
-    cancelId: 0
-  })
-
-  // Возвращает true, если нажали "Да, удалить" (индекс 1)
-  return result.response === 1
-})
-
-// Alert
-ipcMain.handle('app:show-alert', async (_event, { type, title, message }) => {
-  const focusedWindow = BrowserWindow.getFocusedWindow()
-  dialog.showMessageBox(focusedWindow!, {
-    type: type || 'info', // 'error', 'info', 'warning'
-    title: title || 'Система',
-    message: message,
-    buttons: ['ОК']
-  })
-})
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -79,7 +55,9 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  initDatabase()
+  initDatabase() // DB СUAD
+  initApi() // AjaxRequest
+  initApp() // App helper: Confirm, Dialog
 
   createWindow()
 
@@ -98,6 +76,3 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
