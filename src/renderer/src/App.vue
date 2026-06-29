@@ -33,19 +33,27 @@ const handleSubmit = async () => {
     // Режим обновления
     const res = await window.api.updateUser(editingId.value, { ...form.value })
     if (res.success) cancelEdit()
-    else alert(res.error)
+    else {
+      window.api.showAlert({ type: 'error', title: 'Ошибка', message: res.error })
+    }
   } else {
     // Режим создания
     const res = await window.api.createUser({ ...form.value })
     if (res.success) form.value = { name: '', email: '' }
-    else alert(res.error)
+    else {
+      window.api.showAlert({ type: 'error', title: 'Ошибка', message: res.error })
+    }
   }
   await loadUsers()
 }
 
 // Удаление (Delete)
 const deleteUser = async (id: number) => {
-  if (confirm('Вы уверены, что хотите удалить запись?')) {
+  const confirmed = await window.api.showConfirm(
+    'Вы уверены, что хотите удалить этого пользователя?'
+  )
+
+  if (confirmed) {
     const res = await window.api.deleteUser(id)
     if (res.success) {
       if (editingId.value === id) cancelEdit()
@@ -67,7 +75,11 @@ const syncFromApi = async () => {
     }
     await loadUsers() // Обновляем UI
   } else {
-    alert('Не удалось загрузить данные из API: ' + res.error)
+    window.api.showAlert({
+      type: 'error',
+      title: 'Ошибка',
+      message: 'Не удалось загрузить данные из API: ' + res.error
+    })
   }
 }
 

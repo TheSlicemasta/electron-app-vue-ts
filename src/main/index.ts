@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -46,6 +46,32 @@ ipcMain.handle('db:save', async (_event, userData) => {
   const stmt = db.prepare('INSERT INTO users (name) VALUES (?)')
   const info = stmt.run(userData.name)
   return { success: true, id: info.lastInsertRowid }
+})
+
+// Confirm
+ipcMain.handle('app:show-confirm', async (_event, message: string) => {
+  const result = await dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Отмена', 'Да'], // Кнопка 0 и Кнопка 1
+    defaultId: 0,
+    title: 'Подтверждение',
+    message: message,
+    cancelId: 0
+  })
+
+  // Возвращает true, если нажали "Да, удалить" (индекс 1)
+  return result.response === 1
+})
+
+// Alert
+ipcMain.handle('app:show-alert', async (_event, { type, title, message }) => {
+  const focusedWindow = BrowserWindow.getFocusedWindow()
+  dialog.showMessageBox(focusedWindow!, {
+    type: type || 'info', // 'error', 'info', 'warning'
+    title: title || 'Система',
+    message: message,
+    buttons: ['ОК']
+  })
 })
 
 // This method will be called when Electron has finished

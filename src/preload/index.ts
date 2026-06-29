@@ -11,7 +11,14 @@ const databaseAPI = {
   deleteUser: (id: number) => ipcRenderer.invoke('db:delete-user', id),
 
   // HTTPS API
-  fetchRemoteUsers: () => ipcRenderer.invoke('api:fetch-remote-users')
+  fetchRemoteUsers: () => ipcRenderer.invoke('api:fetch-remote-users'),
+
+  // Dialog Confirm
+  showConfirm: (message: string) => ipcRenderer.invoke('app:show-confirm', message),
+
+  // Alert
+  showAlert: (params: { type: string; title: string; message: string }) =>
+    ipcRenderer.invoke('app:show-alert', params)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
