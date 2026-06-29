@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { initDatabase } from './db'
 import { initApi } from './api'
 import { initApp } from './app'
+import { initSocket } from './socket'
 
 function createWindow(): void {
   // Create the browser window.
@@ -36,6 +37,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  initSocket(mainWindow) // #4 Sockets
 }
 
 // This method will be called when Electron has finished
@@ -52,11 +55,11 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
+  // #1 IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  initDatabase() // DB СUAD
-  initApi() // AjaxRequest
+  initDatabase() // #2 DB СUAD
+  initApi() // #3 AjaxRequest
   initApp() // App helper: Confirm, Dialog
 
   createWindow()

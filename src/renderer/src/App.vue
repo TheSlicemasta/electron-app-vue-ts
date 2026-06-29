@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 // import Versions from './components/Versions.vue'
 import ThemeSwitcher from './components/ThemeSwitcher.vue'
@@ -87,6 +87,34 @@ const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
 onMounted(() => {
   loadUsers()
+
+  // Слушаем данные от WebSocket, прилетевшие из Main-процесса
+  window.api.onWsData(async (data: any) => {
+    console.log('Данные из WebSocket в UI:', data)
+
+    // Get user data from ws and try to store...
+    const res = await window.api.createUser({ ...data })
+    if (res.success) {
+      await window.api.showAlert({
+        type: 'info',
+        title: 'Сообщение',
+        message: 'Websocket: Получен и создан новый пользователь'
+      })
+
+      loadUsers()
+    } else {
+      window.api.showAlert({
+        type: 'error',
+        title: 'Ошибка',
+        message: 'Websocket: Ошибка при получении данных пользователя'
+      })
+    }
+  })
+})
+
+onUnmounted(() => {
+  // Отписываемся при уничтожении компонента
+  window.api.offWsData()
 })
 </script>
 
