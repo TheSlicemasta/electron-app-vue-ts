@@ -22,7 +22,7 @@ export function initDatabase(): void {
 }
 
 function registerHandlers(): void {
-  // === БЛОК СUAD (SQLite) ===
+  // === CRUD (SQLite) ===
 
   // Create (Создание)
   ipcMain.handle('db:create-user', async (_event, userData: { name: string; email: string }) => {

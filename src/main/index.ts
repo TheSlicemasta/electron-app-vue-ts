@@ -58,7 +58,7 @@ app.whenReady().then(() => {
   // #1 IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  initDatabase() // #2 DB СUAD
+  initDatabase() // #2 DB СRUD
   initApi() // #3 AjaxRequest
   initApp() // App helper: Confirm, Dialog
 
