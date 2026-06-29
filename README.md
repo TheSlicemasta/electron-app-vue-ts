@@ -4,7 +4,7 @@ An Electron application with Vue and TypeScript
 
 ## Description
 
-Стек: Создали базу приложения на Electron + Vue 3 (TS) + Tailwind CSS с переключателем темной темы.
+Приложение на Electron + Vue 3 (TS) + Tailwind CSS с переключателем темной темы.
 
 Безопасность (IPC): Связали интерфейс Vue и главный процесс Electron через изолированный preload-скрипт.
 
