@@ -142,7 +142,7 @@ onMounted(() => {
                 type="text"
                 required
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-700"
-                placeholder="John Doe"
+                placeholder="Name"
               />
             </div>
             <div>
@@ -155,7 +155,7 @@ onMounted(() => {
                 type="email"
                 required
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors placeholder:text-slate-700"
-                placeholder="john@example.com"
+                placeholder="email@example.com"
               />
             </div>
             <div class="flex gap-2 pt-2">
