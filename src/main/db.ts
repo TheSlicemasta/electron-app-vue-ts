@@ -81,7 +81,10 @@ function registerHandlers(): void {
       const remoteUsers = (await response.json()) as any[]
 
       // Преобразуем формат сервера под нашу БД и возвращаем
-      const formatted = remoteUsers.map((u) => ({ name: u.name, email: u.email.toLowerCase() }))
+      const formatted = remoteUsers
+        .slice(0, 3)
+        .map((u) => ({ name: u.name, email: u.email.toLowerCase() }))
+
       return { success: true, data: formatted }
     } catch (error: any) {
       return { success: false, error: error.message }
