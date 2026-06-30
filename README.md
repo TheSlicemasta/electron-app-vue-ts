@@ -14,6 +14,7 @@ An Electron application with Vue and TypeScript
 
 Веб-сокеты: Создали отдельный модуль src/main/socket.ts (на базе ws) — теперь приложение работает как WebSocket-сервер на порту 8080 и передает данные напрямую во Vue.
 
+Добавлен WebSocket Тест: Эхо-сервер реального времени (wss://echo.websocket.org)
 
 ## Recommended IDE Setup
 
