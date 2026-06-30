@@ -85,10 +85,7 @@ const syncFromApi = async () => {
 
 const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
-onMounted(() => {
-  loadUsers()
-
-  // Слушаем данные от WebSocket, прилетевшие из Main-процесса
+const listenSockets = () => {
   window.api.onWsData(async (data: any) => {
     console.log('Данные из WebSocket в UI:', data)
 
@@ -110,6 +107,92 @@ onMounted(() => {
       })
     }
   })
+}
+
+// WebSockets
+interface LogEntry {
+  time: string
+  type: 'sent' | 'received'
+  text: string
+}
+
+const status = ref('disconnected')
+const messageInput = ref('')
+const logs = ref<LogEntry[]>([])
+const isPending = ref(false)
+
+const getTime = () => new Date().toLocaleTimeString()
+
+const handleConnect = async () => {
+  if (isPending.value) return
+
+  isPending.value = true
+  try {
+    const res = await window.api.WS_connect()
+    if (!res.success) {
+      alert('Ошибка при попытке подключения: ' + res.error)
+      isPending.value = false
+    }
+  } catch (err) {
+    isPending.value = false
+  }
+}
+
+const handleDisconnect = async () => {
+  if (isPending.value) return
+
+  isPending.value = true
+  try {
+    await window.api.WS_disconnect()
+  } catch (err) {
+    isPending.value = false
+  }
+}
+
+const sendMessage = async () => {
+  if (!messageInput.value.trim()) return
+
+  const msg = messageInput.value
+
+  const res = await window.api.WS_send(msg)
+
+  if (res.success) {
+    logs.value.unshift({
+      time: getTime(),
+      type: 'sent',
+      text: msg
+    })
+    messageInput.value = ''
+  } else {
+    window.api.showAlert({ type: 'error', title: 'Ошибка', message: res.error })
+  }
+}
+
+const initWebSocketListner = () => {
+  // Слушаем изменение статуса из Main процесса
+  window.api.WS_onStatus((newStatus: string) => {
+    status.value = newStatus
+    isPending.value = false
+  })
+
+  // Слушаем входящие сообщения от сервера
+  window.api.WS_onMessage((msg: string) => {
+    logs.value.unshift({
+      time: getTime(),
+      type: 'received',
+      text: msg
+    })
+  })
+}
+
+onMounted(() => {
+  loadUsers()
+
+  // Слушаем данные от WebSocket, прилетевшие из Main-процесса
+  listenSockets()
+
+  // External web server test - wss://echo.websocket.org
+  initWebSocketListner()
 })
 
 onUnmounted(() => {
@@ -134,7 +217,7 @@ onUnmounted(() => {
           </div>
         </div>
         <button
-          @click="syncFromApi"
+          @click.stop="syncFromApi"
           :disabled="isSyncing"
           class="bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-800 text-slate-950 disabled:text-slate-600 font-bold text-xs py-2.5 px-4 rounded-xl transition-all shadow-lg shadow-cyan-500/10 flex items-center justify-center gap-2"
         >
@@ -200,7 +283,7 @@ onUnmounted(() => {
               </button>
               <button
                 v-if="editingId"
-                @click="cancelEdit"
+                @click.stop="cancelEdit"
                 type="button"
                 class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-colors"
               >
@@ -214,7 +297,7 @@ onUnmounted(() => {
         <section
           class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-xl md:col-span-3"
         >
-          <h2 class="text-md font-bold mb-4 text-slate-200">Локальная база данных</h2>
+          <h2 class="text-md font-bold mb-4 text-slate-200">Локальная база данных SQLite</h2>
 
           <div
             v-if="users.length === 0"
@@ -235,14 +318,14 @@ onUnmounted(() => {
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
                 <button
-                  @click="startEdit(user)"
+                  @click.stop="startEdit(user)"
                   class="p-1.5 hover:bg-amber-500/10 text-slate-400 hover:text-amber-400 rounded-lg transition-colors"
                   title="Редактировать"
                 >
                   ✏️
                 </button>
                 <button
-                  @click="deleteUser(user.id)"
+                  @click.stop="deleteUser(user.id)"
                   class="p-1.5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 rounded-lg transition-colors"
                   title="Удалить"
                 >
@@ -253,12 +336,96 @@ onUnmounted(() => {
           </div>
         </section>
       </div>
+
+      <div class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+        <!-- Шапка и статус -->
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-200">
+              WebSocket Тест (wss://echo.websocket.org)
+            </h2>
+            <p class="text-xs text-slate-500">Эхо-сервер реального времени</p>
+          </div>
+          <span
+            :class="
+              status === 'connected'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                : 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+            "
+            class="text-xs px-2.5 py-1 rounded-full font-semibold uppercase tracking-wider"
+          >
+            {{ status }}
+          </span>
+        </div>
+
+        <!-- Управление подключением -->
+        <div class="flex gap-2">
+          <button
+            v-if="status !== 'connected'"
+            @click.stop="handleConnect"
+            :disabled="isPending"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed disabled:opacity-75 disabled:shadow-none"
+          >
+            {{ isPending ? 'Подключение...' : 'Подключиться к сокету' }}
+          </button>
+          <button
+            v-else
+            @click.stop="handleDisconnect"
+            :disabled="isPending"
+            class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 px-4 rounded-xl transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed disabled:opacity-75 disabled:shadow-none"
+          >
+            {{ isPending ? 'Отключение...' : 'Отключиться' }}
+          </button>
+        </div>
+
+        <!-- Поле отправки -->
+        <div v-if="status === 'connected'" class="space-y-2">
+          <div class="flex gap-2">
+            <input
+              v-model="messageInput"
+              @keyup.enter="sendMessage"
+              type="text"
+              placeholder="Напишите что-нибудь..."
+              class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-slate-700"
+            />
+            <button
+              @click.stop="sendMessage"
+              :disabled="isPending"
+              class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-4 rounded-xl transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed disabled:opacity-75 disabled:shadow-none"
+            >
+              Отправить
+            </button>
+          </div>
+        </div>
+
+        <!-- Логи / Чат -->
+        <div class="space-y-1">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"
+            >История сообщений</span
+          >
+          <div
+            class="h-40 overflow-y-auto bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono space-y-1.5 custom-scroll"
+          >
+            <div v-if="logs.length === 0" class="text-slate-700 text-center py-12">
+              История пуста
+            </div>
+            <div
+              v-for="(log, i) in logs"
+              :key="i"
+              :class="log.type === 'sent' ? 'text-amber-400' : 'text-cyan-400'"
+              class="break-all"
+            >
+              <span class="text-slate-600">[{{ log.time }}]</span>
+              {{ log.type === 'sent' ? '➔ Вы:' : '🕒 Сервер вернул:' }} {{ log.text }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style>
-/* Кастомный аккуратный скроллбар для Tailwind */
 ::-webkit-scrollbar {
   width: 6px;
 }

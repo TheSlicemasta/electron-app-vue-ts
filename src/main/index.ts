@@ -6,6 +6,7 @@ import { initDatabase } from './db'
 import { initApi } from './api'
 import { initApp } from './app'
 import { initSocket } from './socket'
+import { initWebSocket } from './webSocket'
 
 function createWindow(): void {
   // Create the browser window.
@@ -39,6 +40,7 @@ function createWindow(): void {
   }
 
   initSocket(mainWindow) // #4 Sockets
+  initWebSocket(mainWindow) // #5 web socket
 }
 
 // This method will be called when Electron has finished

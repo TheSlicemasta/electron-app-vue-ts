@@ -20,7 +20,21 @@ const appAPI = {
 
   // #4 Sockets
   onWsData: (callback) => ipcRenderer.on('ws-data-received', (_event, value) => callback(value)),
-  offWsData: () => ipcRenderer.removeAllListeners('ws-data-received')
+  offWsData: () => ipcRenderer.removeAllListeners('ws-data-received'),
+
+  // #5 web socket
+  // Функции-действия (Vue -> Main)
+  WS_connect: () => ipcRenderer.invoke('socket:connect'),
+  WS_disconnect: () => ipcRenderer.invoke('socket:disconnect'),
+  WS_send: (msg: string) => ipcRenderer.invoke('socket:send', msg),
+
+  // Функции-слушатели событий (Main -> Vue)
+  WS_onStatus: (callback: (status: string) => void) => {
+    ipcRenderer.on('socket:on-status', (_event, status) => callback(status))
+  },
+  WS_onMessage: (callback: (msg: string) => void) => {
+    ipcRenderer.on('socket:on-message', (_event, msg) => callback(msg))
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -37,7 +51,7 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.electron = electronAPI
   // @ts-ignore (define in dts)
-  window.api = api
+  window.api = appAPI
 }
 
 export type AppAPI = typeof appAPI
